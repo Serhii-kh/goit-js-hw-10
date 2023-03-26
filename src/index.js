@@ -10,26 +10,62 @@ const countriesInfoRef = document.querySelector('.country-info');
 
 inputRef.addEventListener('input', debounce(onInputChange, DEBOUNCE_DELAY));
 
-function onInputChange() {
-  const name = inputRef.value.trim();
+function onInputChange(e) {
+  const name = e.target.value.trim();
 
   if (name === '') {
-    return countriesInfoRef.innerHTML === '', countriesListRef.innerHTML === '';
+    countriesInfoRef.innerHTML = '';
+    countriesListRef.innerHTML = '';
+    return;
   }
 
   fetchCountries(name)
-    .then(countries => {
-      countriesListRef.innerHTML === '', countriesInfoRef.innerHTML === '';
-      if (countries.length === 1) {
-        console.log(countries);
-      } else if (countries.length >= 10) {
-        Notiflix.Notify.info(
-          'Too many matches found. Please enter a more specific name.'
-        );
-      } else {
-        console.log(countries);
-      }
-    })
-    .catch(Notiflix.Notify.failure('Oops, there is no country with that name'));
+    .then(renderCountriesInfo)
+    .catch(error =>
+      Notiflix.Notify.failure('Oops, there is no country with that name')
+    );
+}
 
+function renderCountriesInfo(countries) {
+  if (countries.length >= 10) {
+    Notiflix.Notify.info(
+      'Too many matches found. Please enter a more specific name.'
+    );
+    countriesListRef.innerHTML = '';
+  }
+
+  const markup = countries
+    .map(({ name, capital, population, flags, languages }) => {
+      return `<img src="${flags.svg}" alt="${name.official}" width="40px">
+          <h1 class="official-name">${name.official}</h1>
+          <p>Capital: ${capital}</p>
+          <p>Population: ${population}</p>
+          <p>Langueges: ${Object.values(languages)}</p>`;
+    })
+    .join('');
+  countriesInfoRef.innerHTML = markup;
+
+  if (countries.length > 1) {
+    countriesInfoRef.innerHTML = '';
+  }
+
+  renderCountriesList(countries);
+}
+
+function renderCountriesList(countries) {
+  if (countries.length > 1 && countries.length < 10) {
+    const markup = countries
+      .map(({ name, flags }) => {
+        return `<li>
+        <img src="${flags.svg}" alt="${name.official}" width="40px">
+        <p>${name.official}</p>
+      </li>`;
+      })
+      .join('');
+    countriesListRef.innerHTML = markup;
+  }
+
+  if (countries.length === 1) {
+    countriesListRef.innerHTML = '';
+  }
 }
