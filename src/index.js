@@ -27,7 +27,7 @@ function onInputChange(e) {
 }
 
 function renderCountriesInfo(countries) {
-  if (countries.length > 9) {
+  if (countries.length > 10) {
     Notiflix.Notify.info(
       'Too many matches found. Please enter a more specific name.'
     );
@@ -53,7 +53,7 @@ function renderCountriesInfo(countries) {
 }
 
 function renderCountriesList(countries) {
-  if (countries.length > 1 && countries.length < 10) {
+  if (countries.length > 1 && countries.length <= 10) {
     const markup = countries
       .map(({ name, flags }) => {
         return `<li>
